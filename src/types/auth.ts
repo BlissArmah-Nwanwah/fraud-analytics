@@ -9,6 +9,13 @@ export type LoginResponse = {
   };
 };
 
+export type ForgotPasswordRequest = { email: string };
+
+export type ForgotPasswordResponse = {
+  message: string;
+  data: null;
+};
+
 export type RegisterRequest = {
   email: string;
   password: string;

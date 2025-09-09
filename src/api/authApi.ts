@@ -10,6 +10,8 @@ import type {
   RegisterRequest,
   RegisterResponse,
   LoginResponse,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
 } from "@/types/auth";
 
 export const authApi = createApi({
@@ -78,6 +80,19 @@ export const authApi = createApi({
         return { data: { token } };
       },
     }),
+    forgotPassword: builder.mutation<
+      { message: string },
+      ForgotPasswordRequest
+    >({
+      query: (body) => ({
+        url: "api/auth/forgot-password",
+        method: "POST",
+        body,
+      }),
+      async transformResponse(response: ForgotPasswordResponse) {
+        return { message: response.message };
+      },
+    }),
   }),
 });
 
@@ -86,4 +101,5 @@ export const {
   useRegisterMutation,
   useLogoutMutation,
   useRefreshQuery,
+  useForgotPasswordMutation,
 } = authApi;
