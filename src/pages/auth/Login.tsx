@@ -5,13 +5,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { useLoginMutation } from "@/api/authApi";
 import { useToast } from "@/components/ui/toast";
 import { isEmail, isStrongPassword } from "@/validators/signup";
+import { resolveFriendlyError } from "@/constants/errors";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [login, { isLoading, error }] = useLoginMutation();
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [login, { isLoading }] = useLoginMutation();
   const navigate = useNavigate();
 
   const { show } = useToast();
@@ -26,22 +28,23 @@ const Login: React.FC = () => {
       await login({ email, password }).unwrap();
       show({ title: "Welcome back", description: "Logged in successfully" });
       navigate("/");
-    } catch {
-      show({
-        title: "Login failed",
-        description: "Please check your credentials",
-      });
+    } catch (err) {
+      const friendly = resolveFriendlyError(err);
+      setSubmitError(friendly);
+      show({ title: "Login failed", description: friendly });
     }
   };
 
   const onEmailChange = (v: string) => {
     setEmail(v);
     setEmailError(isEmail(v));
+    if (submitError) setSubmitError(null);
   };
 
   const onPasswordChange = (v: string) => {
     setPassword(v);
     setPasswordError(isStrongPassword(v));
+    if (submitError) setSubmitError(null);
   };
 
   return (
@@ -70,7 +73,9 @@ const Login: React.FC = () => {
         {passwordError ? (
           <p className="text-red-300 text-sm">{passwordError}</p>
         ) : null}
-        {error ? <p className="text-red-300 text-sm">Failed to login</p> : null}
+        {submitError ? (
+          <p className="text-red-300 text-sm">{submitError}</p>
+        ) : null}
         <Button
           disabled={
             isLoading || !!emailError || !!passwordError || !email || !password
