@@ -33,8 +33,8 @@ export const userApi = createApi({
       async queryFn(patch) {
         const merged: UserProfile = {
           id: "u_demo",
-          name: patch.name || "Demo User",
-          email: patch.email || "demo@example.com",
+          name: patch.name ?? "Demo User",
+          email: patch.email ?? "demo@example.com",
           twoFAEnabled: !!patch.twoFAEnabled,
           defaultFilters: patch.defaultFilters || { region: null, provider: null },
         };
