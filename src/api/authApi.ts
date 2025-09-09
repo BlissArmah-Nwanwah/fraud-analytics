@@ -1,53 +1,63 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { setCredentials, clearCredentials, type UserInfo } from "@/app/slices/authSlice";
-
-type LoginRequest = { email: string; password: string };
-type SignupRequest = { name: string; email: string; password: string };
+import {
+  setCredentials,
+  clearCredentials,
+  type UserInfo,
+} from "@/app/slices/authSlice";
+import { API_BASE_URL } from "@/config/env";
+import type {
+  LoginRequest,
+  RegisterRequest,
+  RegisterResponse,
+  LoginResponse,
+} from "@/types/auth";
 
 export const authApi = createApi({
   reducerPath: "authApi",
-  baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
+  baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
   endpoints: (builder) => ({
     login: builder.mutation<{ token: string; user: UserInfo }, LoginRequest>({
-      async queryFn(arg, _api, _extra, _baseQuery) {
-        // Mocked auth: accept any email/password, infer role by email prefix
-        const role = arg.email.startsWith("admin")
-          ? "admin"
-          : arg.email.startsWith("analyst")
-          ? "analyst"
-          : "viewer";
+      query: (body) => ({
+        url: "api/auth/login",
+        method: "POST",
+        body,
+      }),
+      async transformResponse(response: LoginResponse, _meta, arg) {
         const user: UserInfo = {
-          id: "u_" + Math.random().toString(36).slice(2, 9),
+          id: response.data.userId,
           name: arg.email.split("@")[0],
-          email: arg.email,
-          role,
-        };
-        const token = btoa(`${user.email}:${Date.now()}`);
-        return { data: { token, user } };
-      },
-      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled;
-          dispatch(setCredentials(data));
-        } catch {}
-      },
-    }),
-    signup: builder.mutation<{ token: string; user: UserInfo }, SignupRequest>({
-      async queryFn(arg) {
-        const user: UserInfo = {
-          id: "u_" + Math.random().toString(36).slice(2, 9),
-          name: arg.name,
           email: arg.email,
           role: "viewer",
         };
-        const token = btoa(`${user.email}:${Date.now()}`);
-        return { data: { token, user } };
+        return { token: response.data.token, user };
       },
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled;
-          dispatch(setCredentials(data));
-        } catch {}
+        const { data } = await queryFulfilled;
+        dispatch(setCredentials(data));
+      },
+    }),
+    register: builder.mutation<
+      { token: string; user: UserInfo },
+      RegisterRequest
+    >({
+      query: (body) => ({
+        url: "api/auth/register",
+        method: "POST",
+        body,
+      }),
+      async transformResponse(response: RegisterResponse) {
+        const apiUser = response.data.user;
+        const user: UserInfo = {
+          id: apiUser.id,
+          name: `${apiUser.firstName} ${apiUser.lastName}`.trim(),
+          email: apiUser.email,
+          role: (apiUser.role?.toLowerCase?.() as UserInfo["role"]) || "viewer",
+        };
+        return { token: response.data.token, user };
+      },
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        const { data } = await queryFulfilled;
+        dispatch(setCredentials(data));
       },
     }),
     logout: builder.mutation<{ success: boolean }, void>({
@@ -55,8 +65,11 @@ export const authApi = createApi({
         return { data: { success: true } };
       },
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
-        await queryFulfilled;
-        dispatch(clearCredentials());
+        try {
+          await queryFulfilled;
+        } finally {
+          dispatch(clearCredentials());
+        }
       },
     }),
     refresh: builder.query<{ token: string }, void>({
@@ -68,5 +81,9 @@ export const authApi = createApi({
   }),
 });
 
-export const { useLoginMutation, useSignupMutation, useLogoutMutation, useRefreshQuery } = authApi;
-
+export const {
+  useLoginMutation,
+  useRegisterMutation,
+  useLogoutMutation,
+  useRefreshQuery,
+} = authApi;
