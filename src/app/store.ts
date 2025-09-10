@@ -4,6 +4,7 @@ import { rootReducer } from "@/app/rootReducer";
 import { authApi } from "@/api/authApi";
 import { dashboardApi } from "@/api/dashboardApi";
 import { userApi } from "@/api/userApi";
+import { fraudDetectionApi } from "@/api/fraudDetectionApi";
 
 export const store = configureStore({
   reducer: rootReducer,
@@ -11,7 +12,8 @@ export const store = configureStore({
     getDefaultMiddleware().concat(
       authApi.middleware,
       dashboardApi.middleware,
-      userApi.middleware
+      userApi.middleware,
+      fraudDetectionApi.middleware
     ),
 });
 
@@ -19,4 +21,3 @@ setupListeners(store.dispatch);
 
 export type AppDispatch = typeof store.dispatch;
 export type AppState = ReturnType<typeof store.getState>;
-
