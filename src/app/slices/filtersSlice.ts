@@ -4,12 +4,14 @@ export interface FiltersState {
   dateRange: { from: string | null; to: string | null };
   region: string | null;
   provider: string | null;
+  days: number; // lookback window for fraud overview
 }
 
 const initialState: FiltersState = {
   dateRange: { from: null, to: null },
   region: null,
   provider: null,
+  days: 30,
 };
 
 const filtersSlice = createSlice({
@@ -28,10 +30,13 @@ const filtersSlice = createSlice({
     setProvider: (state, action: PayloadAction<string | null>) => {
       state.provider = action.payload;
     },
+    setDays: (state, action: PayloadAction<number>) => {
+      state.days = action.payload;
+    },
     resetFilters: () => initialState,
   },
 });
 
-export const { setDateRange, setRegion, setProvider, resetFilters } =
+export const { setDateRange, setRegion, setProvider, setDays, resetFilters } =
   filtersSlice.actions;
 export default filtersSlice.reducer;
