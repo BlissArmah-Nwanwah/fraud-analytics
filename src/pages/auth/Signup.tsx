@@ -126,6 +126,7 @@ const Signup: React.FC = () => {
               required
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
+              className="w-full"
             />
             <Input
               placeholder="Last name"
@@ -133,6 +134,7 @@ const Signup: React.FC = () => {
               required
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
+              className="w-full"
             />
           </>
         ) : null}
@@ -146,6 +148,7 @@ const Signup: React.FC = () => {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="w-full"
             />
             <Input
               type="password"
@@ -154,6 +157,7 @@ const Signup: React.FC = () => {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="w-full"
             />
           </>
         ) : null}
@@ -164,10 +168,10 @@ const Signup: React.FC = () => {
               placeholder="Username (optional)"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-44"
+              className="w-full"
             />
             <Select value={location ?? undefined} onValueChange={setLocation}>
-              <SelectTrigger className="w-44">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a region" />
               </SelectTrigger>
               <SelectContent>
@@ -206,7 +210,7 @@ const Signup: React.FC = () => {
             <Button
               type="button"
               onClick={next}
-              className={step === 1 ? "w-full" : "ml-auto"}
+              className={step === 1 ? "w-full text-white" : "ml-auto text-white"}
               disabled={isLoading}
             >
               Next
@@ -216,7 +220,7 @@ const Signup: React.FC = () => {
               type="button"
               onClick={onSubmit}
               disabled={isLoading || !location}
-              className="ml-auto"
+              className="ml-auto text-white"
             >
               Create account
             </Button>
