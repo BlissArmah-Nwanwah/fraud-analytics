@@ -42,6 +42,36 @@ const Sidebar: React.FC = () => {
             </NavLink>
           ))}
       </nav>
+
+      {/* User Profile Section */}
+      <div className="p-3 border-t border-gray-200 dark:border-white/10">
+        <div className="flex items-center gap-3">
+          {user?.avatar ? (
+            <img
+              src={user.avatar}
+              alt={user.name}
+              className="h-8 w-8 rounded-full object-cover"
+            />
+          ) : (
+            <div className="h-8 w-8 rounded-full bg-purple-600 text-white flex items-center justify-center text-xs font-semibold">
+              {(user?.name || user?.email || "U")
+                .split(" ")
+                .slice(0, 2)
+                .map((s) => s[0])
+                .join("")
+                .toUpperCase()}
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+              {user?.username || user?.name || "User"}
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+              {user?.role || "viewer"}
+            </p>
+          </div>
+        </div>
+      </div>
     </aside>
   );
 };
