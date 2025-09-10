@@ -29,14 +29,21 @@ const Settings: React.FC = () => {
   const [username, setUsername] = useState(authUser?.username || "");
   const [location, setLocation] = useState(authUser?.location || "");
 
+  // Check if any changes have been made
+  const hasChanges =
+    firstName !== (authUser?.firstName || "") ||
+    lastName !== (authUser?.lastName || "") ||
+    username !== (authUser?.username || "") ||
+    location !== (authUser?.location || "");
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Profile</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex items-center gap-3 md:col-span-2">
+        <CardContent className="space-y-6">
+          <div className="flex items-center gap-3">
             {authUser?.avatar ? (
               <img
                 src={authUser.avatar}
@@ -60,75 +67,88 @@ const Settings: React.FC = () => {
               <div>{authUser?.email}</div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-500 dark:text-gray-400">
-              First name
-            </label>
-            <Input
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              placeholder="First name"
-            />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                First name
+              </label>
+              <Input
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="First name"
+                className="w-full"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Last name
+              </label>
+              <Input
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Last name"
+                className="w-full"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Email
+              </label>
+              <Input
+                defaultValue={authUser?.email}
+                placeholder="Email"
+                disabled
+                className="w-full"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Username
+              </label>
+              <Input
+                value={username ?? ""}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Username"
+                className="w-full"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Location
+              </label>
+              <Select
+                value={location ?? ""}
+                onValueChange={(v) => setLocation(v)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select location" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.values(GhanaRegion).map((r) => (
+                    <SelectItem key={r} value={r}>
+                      {r.replace(/_/g, " ")}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Role
+              </label>
+              <Input
+                defaultValue={authUser?.role}
+                placeholder="Role"
+                disabled
+                className="w-full"
+              />
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-500 dark:text-gray-400">
-              Last name
-            </label>
-            <Input
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              placeholder="Last name"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-500 dark:text-gray-400">
-              Email
-            </label>
-            <Input
-              defaultValue={authUser?.email}
-              placeholder="Email"
-              disabled
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-500 dark:text-gray-400">
-              Username
-            </label>
-            <Input
-              value={username ?? ""}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Username"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-500 dark:text-gray-400">
-              Location
-            </label>
-            <Select
-              value={location ?? ""}
-              onValueChange={(v) => setLocation(v)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select location" />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.values(GhanaRegion).map((r) => (
-                  <SelectItem key={r} value={r}>
-                    {r.replace(/_/g, " ")}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-500 dark:text-gray-400">
-              Role
-            </label>
-            <Input defaultValue={authUser?.role} placeholder="Role" disabled />
-          </div>
+
           <Button
-            className="md:col-span-2 w-full"
-            disabled={saving}
+            className="w-full"
+            disabled={saving || !hasChanges}
             onClick={async () => {
               await updateMyProfile({
                 firstName,
