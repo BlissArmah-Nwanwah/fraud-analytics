@@ -7,6 +7,11 @@ export interface UserInfo {
   name: string;
   email: string;
   role: Role;
+  avatar?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  username?: string | null;
+  location?: string | null;
 }
 
 interface AuthState {
@@ -37,6 +42,12 @@ const authSlice = createSlice({
         localStorage.setItem("user", JSON.stringify(action.payload.user));
       }
     },
+    setUser: (state, action: PayloadAction<UserInfo>) => {
+      state.user = action.payload;
+      if (typeof window !== "undefined") {
+        localStorage.setItem("user", JSON.stringify(action.payload));
+      }
+    },
     clearCredentials: (state) => {
       state.token = null;
       state.user = null;
@@ -48,5 +59,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, clearCredentials } = authSlice.actions;
+export const { setCredentials, setUser, clearCredentials } = authSlice.actions;
 export default authSlice.reducer;
