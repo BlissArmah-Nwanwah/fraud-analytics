@@ -2,8 +2,9 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import {
   setCredentials,
   clearCredentials,
-  type UserInfo,
+  setUser,
 } from "@/app/slices/authSlice";
+import type { UserInfo } from "@/app/slices/authSlice";
 import { API_BASE_URL } from "@/config/env";
 import type {
   LoginRequest,
@@ -16,7 +17,15 @@ import type {
 
 export const authApi = createApi({
   reducerPath: "authApi",
-  baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: API_BASE_URL,
+    prepareHeaders: (headers) => {
+      const token =
+        typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      if (token) headers.set("authorization", `Bearer ${token}`);
+      return headers;
+    },
+  }),
   endpoints: (builder) => ({
     login: builder.mutation<{ token: string; user: UserInfo }, LoginRequest>({
       query: (body) => ({
@@ -93,6 +102,120 @@ export const authApi = createApi({
         return { message: response.message };
       },
     }),
+    me: builder.query<UserInfo, void>({
+      query: () => ({ url: "api/auth/me" }),
+      async transformResponse(response: {
+        message: string;
+        data: {
+          user: Partial<{
+            id: string;
+            userId: string;
+            firstName: string;
+            lastName: string;
+            name: string;
+            username: string | null;
+            email: string;
+            role: string;
+          }>;
+        };
+      }) {
+        const apiUser = response?.data?.user ?? {};
+        const apiRole = apiUser.role?.toString().toUpperCase();
+        const roleMap: Record<string, UserInfo["role"]> = {
+          ADMIN: "admin",
+          ANALYST: "analyst",
+          USER: "viewer",
+        };
+        const roleKey = (apiRole ?? "") as keyof typeof roleMap;
+        const user: UserInfo = {
+          id: apiUser.id ?? apiUser.userId ?? "",
+          name:
+            `${apiUser.firstName ?? ""} ${apiUser.lastName ?? ""}`.trim() ??
+            apiUser.name ??
+            apiUser.username ??
+            "",
+          email: apiUser.email ?? "",
+          role: roleMap[roleKey] ?? "viewer",
+          avatar: (apiUser as { avatar?: string | null }).avatar ?? null,
+          firstName:
+            (apiUser as { firstName?: string | null }).firstName ?? null,
+          lastName: (apiUser as { lastName?: string | null }).lastName ?? null,
+          username: (apiUser as { username?: string | null }).username ?? null,
+          location: (apiUser as { location?: string | null }).location ?? null,
+        };
+        return user;
+      },
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(setUser(data));
+        } catch {
+          // noop
+        }
+      },
+    }),
+    updateMyProfile: builder.mutation<
+      UserInfo,
+      Partial<{
+        firstName: string;
+        lastName: string;
+        username: string;
+        location: string;
+      }>
+    >({
+      query: (body) => ({ url: "api/auth/profile", method: "PATCH", body }),
+      async transformResponse(response: {
+        message: string;
+        data: {
+          user: Partial<{
+            id: string;
+            userId: string;
+            firstName: string;
+            lastName: string;
+            name: string;
+            username: string | null;
+            email: string;
+            role: string;
+            avatar?: string | null;
+            location?: string | null;
+          }>;
+        };
+      }) {
+        const apiUser = response?.data?.user ?? {};
+        const apiRole = apiUser.role?.toString().toUpperCase();
+        const roleMap: Record<string, UserInfo["role"]> = {
+          ADMIN: "admin",
+          ANALYST: "analyst",
+          USER: "viewer",
+        };
+        const roleKey = (apiRole ?? "") as keyof typeof roleMap;
+        const user: UserInfo = {
+          id: apiUser.id ?? apiUser.userId ?? "",
+          name:
+            `${apiUser.firstName ?? ""} ${apiUser.lastName ?? ""}`.trim() ??
+            apiUser.name ??
+            apiUser.username ??
+            "",
+          email: apiUser.email ?? "",
+          role: roleMap[roleKey] ?? "viewer",
+          avatar: (apiUser as { avatar?: string | null }).avatar ?? null,
+          firstName:
+            (apiUser as { firstName?: string | null }).firstName ?? null,
+          lastName: (apiUser as { lastName?: string | null }).lastName ?? null,
+          username: (apiUser as { username?: string | null }).username ?? null,
+          location: (apiUser as { location?: string | null }).location ?? null,
+        };
+        return user;
+      },
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(setUser(data));
+        } catch {
+          // noop
+        }
+      },
+    }),
   }),
 });
 
@@ -102,4 +225,6 @@ export const {
   useLogoutMutation,
   useRefreshQuery,
   useForgotPasswordMutation,
+  useMeQuery,
+  useUpdateMyProfileMutation,
 } = authApi;
