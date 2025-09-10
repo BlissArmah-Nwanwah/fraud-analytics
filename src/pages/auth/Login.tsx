@@ -59,6 +59,7 @@ const Login: React.FC = () => {
           value={email}
           onChange={(e) => onEmailChange(e.target.value)}
           aria-invalid={!!emailError}
+          className="w-full"
         />
         {emailError ? (
           <p className="text-red-300 text-sm">{emailError}</p>
@@ -69,6 +70,7 @@ const Login: React.FC = () => {
           value={password}
           onChange={(e) => onPasswordChange(e.target.value)}
           aria-invalid={!!passwordError}
+          className="w-full"
         />
         {passwordError ? (
           <p className="text-red-300 text-sm">{passwordError}</p>
@@ -80,7 +82,7 @@ const Login: React.FC = () => {
           disabled={
             isLoading || !!emailError || !!passwordError || !email || !password
           }
-          className="w-full"
+          className="w-full text-white"
         >
           Login
         </Button>
