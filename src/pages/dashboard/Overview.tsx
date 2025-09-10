@@ -118,6 +118,24 @@ const Overview: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Confidence Distribution</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {rLoading || !risks ? (
+            <Skeleton className="h-80" />
+          ) : (
+            <BarCompareChart
+              categories={risks.confidence.map((c) => c.range)}
+              series={[
+                { name: "Count", data: risks.confidence.map((c) => c.count) },
+              ]}
+            />
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
