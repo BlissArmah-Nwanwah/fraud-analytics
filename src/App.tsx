@@ -4,7 +4,6 @@ import ProtectedRoute from "@/routes/ProtectedRoute";
 import Overview from "@/pages/dashboard/Overview";
 import Activities from "@/pages/dashboard/Activities";
 import Geography from "@/pages/dashboard/Geography";
-import Providers from "@/pages/dashboard/Providers";
 import Settings from "@/pages/settings/Settings";
 import Login from "@/pages/auth/Login";
 import Signup from "@/pages/auth/Signup";
@@ -23,9 +22,7 @@ function App() {
           <Route element={<ProtectedRoute roles={["admin"]} />}>
             <Route path="geography" element={<Geography />} />
           </Route>
-          <Route element={<ProtectedRoute roles={["admin", "analyst"]} />}>
-            <Route path="providers" element={<Providers />} />
-          </Route>
+
           <Route path="settings" element={<Settings />} />
         </Route>
       </Route>
