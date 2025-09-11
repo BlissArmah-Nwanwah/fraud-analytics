@@ -8,7 +8,7 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-import { setProvider, setRegion, setDays } from "@/app/slices/filtersSlice";
+import { setRegion, setDays } from "@/app/slices/filtersSlice";
 import { useLogoutMutation, useMeQuery } from "@/api/authApi";
 import { useToast } from "@/components/ui/toast";
 import type { RootState } from "@/app/rootReducer";
@@ -16,7 +16,7 @@ import { useTheme } from "@/context/ThemeContext";
 
 const Header: React.FC = () => {
   const dispatch = useDispatch();
-  const { region, provider, days } = useSelector((s: RootState) => s.filters);
+  const { region, days } = useSelector((s: RootState) => s.filters);
   const user = useSelector((s: RootState) => s.auth.user);
   const { theme, toggle } = useTheme();
   const [logout] = useLogoutMutation();
@@ -68,26 +68,6 @@ const Header: React.FC = () => {
                   <SelectItem value="Volta">Volta</SelectItem>
                   <SelectItem value="Central">Central</SelectItem>
                   <SelectItem value="Bono East">Bono East</SelectItem>
-                </SelectContent>
-              </Select>
-              <label className="text-xs text-gray-500 dark:text-gray-400">
-                Provider
-              </label>
-              <Select
-                value={provider ?? "ALL"}
-                onValueChange={(v) =>
-                  dispatch(setProvider(v === "ALL" ? null : v))
-                }
-              >
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="All providers" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">All</SelectItem>
-                  <SelectItem value="MTN">MTN</SelectItem>
-                  <SelectItem value="Vodafone">Vodafone</SelectItem>
-                  <SelectItem value="AirtelTigo">AirtelTigo</SelectItem>
-                  <SelectItem value="Zeepay">Zeepay</SelectItem>
                 </SelectContent>
               </Select>
             </>
