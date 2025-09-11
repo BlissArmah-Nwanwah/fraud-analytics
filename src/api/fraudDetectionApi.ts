@@ -13,9 +13,30 @@ export interface FraudOverviewStats {
   lastAnalysisAt: string | null;
 }
 
+export interface AdminOverviewStats {
+  totalAnalyses: number;
+  totalUsers: number;
+  fraudDetected: number;
+  fraudRate: number;
+  averageProcessingTime: number;
+  sourceBreakdown: {
+    userScan: number;
+    backgroundScan: number;
+  };
+  typeBreakdown: {
+    text: number;
+    image: number;
+  };
+}
+
 export interface FraudOverviewResponse {
   message: string;
   data: FraudOverviewStats;
+}
+
+export interface AdminOverviewResponse {
+  message: string;
+  data: AdminOverviewStats;
 }
 
 export interface ActivityPoint {
@@ -49,6 +70,31 @@ export interface RiskFactorsApiResponse {
   };
 }
 
+export interface AdminActivityApiResponse {
+  message: string;
+  data: {
+    timeSeriesData: Array<{
+      date: string;
+      totalAnalyses: number;
+      fraudDetected: number;
+      userScans: number;
+      backgroundScans: number;
+    }>;
+  };
+}
+
+export interface AdminRiskFactorsApiResponse {
+  message: string;
+  data: {
+    topRiskFactors: Array<{
+      factor: string;
+      count: number;
+      fraudPercentage?: number;
+    }>;
+    confidenceDistribution: Array<{ range: string; count: number }>;
+  };
+}
+
 export const fraudDetectionApi = createApi({
   reducerPath: "fraudDetectionApi",
   baseQuery: fetchBaseQuery({
@@ -69,6 +115,15 @@ export const fraudDetectionApi = createApi({
       }),
       transformResponse: (response: FraudOverviewResponse) => response.data,
     }),
+    getAdminOverviewStats: builder.query<AdminOverviewStats, { days?: number }>(
+      {
+        query: ({ days = 30 } = {}) => ({
+          url: "api/fraud-detection/admin/overview",
+          params: { days },
+        }),
+        transformResponse: (response: AdminOverviewResponse) => response.data,
+      }
+    ),
     getActivityStats: builder.query<ActivityPoint[], { days?: number }>({
       query: ({ days = 7 } = {}) => ({
         url: "api/fraud-detection/stats/activity",
@@ -105,11 +160,57 @@ export const fraudDetectionApi = createApi({
         };
       },
     }),
+    getAdminActivityStats: builder.query<ActivityPoint[], { days?: number }>({
+      query: ({ days = 7 } = {}) => ({
+        url: "api/fraud-detection/admin/activity",
+        params: { days },
+      }),
+      transformResponse: (
+        response: AdminActivityApiResponse
+      ): ActivityPoint[] =>
+        response.data.timeSeriesData.map((d) => ({
+          date: d.date,
+          totalAnalyses: d.totalAnalyses,
+          fraudDetected: d.fraudDetected,
+          userScans: d.userScans,
+          backgroundScans: d.backgroundScans,
+        })),
+    }),
+    getAdminRiskFactors: builder.query<
+      {
+        categories: string[];
+        counts: number[];
+        fraudPercentages?: number[];
+        confidence: { range: string; count: number }[];
+      },
+      { days?: number }
+    >({
+      query: ({ days = 7 } = {}) => ({
+        url: "api/fraud-detection/admin/risk-factors",
+        params: { days },
+      }),
+      transformResponse: (response: AdminRiskFactorsApiResponse) => {
+        const categories = response.data.topRiskFactors.map((r) => r.factor);
+        const counts = response.data.topRiskFactors.map((r) => r.count);
+        const fraudPercentages = response.data.topRiskFactors.map(
+          (r) => r.fraudPercentage ?? 0
+        );
+        return {
+          categories,
+          counts,
+          fraudPercentages,
+          confidence: response.data.confidenceDistribution,
+        };
+      },
+    }),
   }),
 });
 
 export const {
   useGetOverviewStatsQuery,
+  useGetAdminOverviewStatsQuery,
+  useGetAdminActivityStatsQuery,
   useGetActivityStatsQuery,
   useGetRiskFactorsQuery,
+  useGetAdminRiskFactorsQuery,
 } = fraudDetectionApi;
