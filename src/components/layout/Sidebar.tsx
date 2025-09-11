@@ -67,7 +67,7 @@ const Sidebar: React.FC = () => {
               {user?.username || user?.name || "User"}
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-              {user?.role || "viewer"}
+              {user?.role || "user"}
             </p>
           </div>
         </div>
