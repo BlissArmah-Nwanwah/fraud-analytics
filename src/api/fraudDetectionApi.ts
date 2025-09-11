@@ -95,6 +95,18 @@ export interface AdminRiskFactorsApiResponse {
   };
 }
 
+export interface AdminRegionsApiResponse {
+  message: string;
+  data: {
+    regionBreakdown: Array<{
+      region: string;
+      count: number;
+      fraudCount: number;
+      fraudRate: number;
+    }>;
+  };
+}
+
 export const fraudDetectionApi = createApi({
   reducerPath: "fraudDetectionApi",
   baseQuery: fetchBaseQuery({
@@ -203,6 +215,31 @@ export const fraudDetectionApi = createApi({
         };
       },
     }),
+    getAdminRegionsStats: builder.query<
+      {
+        categories: string[];
+        counts: number[];
+        fraudCounts: number[];
+        fraudRates: number[];
+      },
+      { days?: number }
+    >({
+      query: ({ days = 30 } = {}) => ({
+        url: "api/fraud-detection/admin/regions",
+        params: { days },
+      }),
+      transformResponse: (response: AdminRegionsApiResponse) => {
+        const categories = response.data.regionBreakdown.map((r) => r.region);
+        const counts = response.data.regionBreakdown.map((r) => r.count);
+        const fraudCounts = response.data.regionBreakdown.map(
+          (r) => r.fraudCount
+        );
+        const fraudRates = response.data.regionBreakdown.map(
+          (r) => r.fraudRate
+        );
+        return { categories, counts, fraudCounts, fraudRates };
+      },
+    }),
   }),
 });
 
@@ -213,4 +250,5 @@ export const {
   useGetActivityStatsQuery,
   useGetRiskFactorsQuery,
   useGetAdminRiskFactorsQuery,
+  useGetAdminRegionsStatsQuery,
 } = fraudDetectionApi;
