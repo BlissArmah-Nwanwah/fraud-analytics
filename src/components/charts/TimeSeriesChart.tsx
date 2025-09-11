@@ -17,7 +17,7 @@ const TimeSeriesChart: React.FC<{ data: ActivityPoint[] }> = ({ data }) => {
       type: "datetime",
       categories: data.map((d) => d.date),
     },
-    colors: ["#8b5cf6", "#ef4444"],
+    colors: ["#8b5cf6", "#ef4444", "#22c55e", "#06b6d4"],
     stroke: { width: 2, curve: "smooth" },
     theme: {
       mode: document.documentElement.classList.contains("dark")

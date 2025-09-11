@@ -147,7 +147,7 @@ const Settings: React.FC = () => {
           </div>
 
           <Button
-            className="w-full"
+            className="w-full text-white"
             disabled={saving || !hasChanges}
             onClick={async () => {
               await updateMyProfile({
