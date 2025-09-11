@@ -38,7 +38,7 @@ export const authApi = createApi({
           id: response.data.userId,
           name: arg.email.split("@")[0],
           email: arg.email,
-          role: "viewer",
+          role: "user",
         };
         return { token: response.data.token, user };
       },
@@ -62,7 +62,7 @@ export const authApi = createApi({
           id: apiUser.id,
           name: `${apiUser.firstName} ${apiUser.lastName}`.trim(),
           email: apiUser.email,
-          role: (apiUser.role?.toLowerCase?.() as UserInfo["role"]) || "viewer",
+          role: (apiUser.role?.toLowerCase?.() as UserInfo["role"]) || "user",
         };
         return { token: response.data.token, user };
       },
@@ -123,8 +123,7 @@ export const authApi = createApi({
         const apiRole = apiUser.role?.toString().toUpperCase();
         const roleMap: Record<string, UserInfo["role"]> = {
           ADMIN: "admin",
-          ANALYST: "analyst",
-          USER: "viewer",
+          USER: "user",
         };
         const roleKey = (apiRole ?? "") as keyof typeof roleMap;
         const user: UserInfo = {
@@ -135,7 +134,7 @@ export const authApi = createApi({
             apiUser.username ??
             "",
           email: apiUser.email ?? "",
-          role: roleMap[roleKey] ?? "viewer",
+          role: roleMap[roleKey] ?? "user",
           avatar: (apiUser as { avatar?: string | null }).avatar ?? null,
           firstName:
             (apiUser as { firstName?: string | null }).firstName ?? null,
@@ -185,8 +184,7 @@ export const authApi = createApi({
         const apiRole = apiUser.role?.toString().toUpperCase();
         const roleMap: Record<string, UserInfo["role"]> = {
           ADMIN: "admin",
-          ANALYST: "analyst",
-          USER: "viewer",
+          USER: "user",
         };
         const roleKey = (apiRole ?? "") as keyof typeof roleMap;
         const user: UserInfo = {
@@ -197,7 +195,7 @@ export const authApi = createApi({
             apiUser.username ??
             "",
           email: apiUser.email ?? "",
-          role: roleMap[roleKey] ?? "viewer",
+          role: roleMap[roleKey] ?? "user",
           avatar: (apiUser as { avatar?: string | null }).avatar ?? null,
           firstName:
             (apiUser as { firstName?: string | null }).firstName ?? null,
